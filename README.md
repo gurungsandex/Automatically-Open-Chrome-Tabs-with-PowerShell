@@ -19,13 +19,6 @@ Give it a try and feel free to recommend improvements!
 2. Inside the folder, create a file called `urls.txt`.
 3. Add all your required URLs (websites), one per line in "urls.txt" file. Lines starting with `#` are ignored.
 
-Example:
-
-```
-https://outlook.office.com
-https://teams.microsoft.com
-https://servicenow.company.com
-```
 <img width="427" height="162" alt="image" src="https://github.com/user-attachments/assets/e627cbd0-0264-4a28-a6b3-5098c013a8f6" />
 
 ---
