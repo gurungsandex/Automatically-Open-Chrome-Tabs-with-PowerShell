@@ -162,3 +162,21 @@ Edit `urls.txt` to add or remove URLs. Next time you run the script, the changes
 
 ---
 
+## Security Considerations & Best Practices
+
+Running the script is safe for your workstation. It only reads the local `urls.txt` file and launches Chrome, it does **not modify system files, the registry, or any credentials**.
+
+**Risk:**
+
+* Unauthorized modification of `urls.txt` or the PowerShell script by others could result in opening malicious or harmful URLs.
+
+**Best Practices:**
+
+* Store the script and `urls.txt` in a secure location with restricted access.
+* Regularly review and verify all URLs in `urls.txt`; avoid unsafe or untrusted sites.
+
+---
+
+
+
+
