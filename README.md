@@ -1,1 +1,146 @@
-# Automatically-Open-Chrome-Tabs-with-PowerShell
+
+# **Automatically Open All Your Morning Chrome Tabs with PowerShell**
+
+Are you bored or is it time-consuming to open all those tabs sometimes more than 10 or 20 browser tabs when you start your morning at work? 
+
+If that is the scenario, here is a PowerShell script which you can just run, and it will **automatically open all your required browser tabs**. 
+
+This saves time. Automation is the trend now. If we have the technology or trick, why not give it a try?
+
+I have provided a **step-by-step easy guide** and **full PowerShell script**, ready to run. 
+
+Give it a try and feel free to recommend improvements!
+
+---
+
+## **Step 1: Prepare URLs**
+
+1. Create a folder for this automation, e.g., `C:\Automation\MorningWorkspace`.
+2. Inside, create a file called `urls.txt`.
+3. Add all your required URLs (websites), one per line in "urls.txt" file. Lines starting with `#` are ignored.
+
+Example:
+
+```
+https://outlook.office.com
+https://teams.microsoft.com
+https://servicenow.company.com
+```
+
+---
+
+## **Step 2: Save the Script**
+
+1. Create a `MorningChromeLauncher.ps1` PowerShell file **in the same folder** as `urls.txt` and Copy the following script into the PowerShell file.
+
+```powershell
+# MorningChromeLauncher.ps1
+# Opens all URLs from urls.txt in Chrome automatically
+
+$UrlFile = Join-Path $PSScriptRoot "urls.txt"
+$ChromeRunningOption = "A"
+$DelayIfChromeRunning = 0.3
+$DelayIfChromeClosed = 0
+
+function Get-ChromePath {
+    $paths = @("$Env:ProgramFiles\Google\Chrome\Application\chrome.exe", "$Env:ProgramFiles(x86)\Google\Chrome\Application\chrome.exe")
+    foreach ($path in $paths) { if (Test-Path $path) { return $path } }
+    return $null
+}
+
+function Get-ChromeProfiles {
+    $UserDataDir = "$Env:LOCALAPPDATA\Google\Chrome\User Data"
+    if (!(Test-Path $UserDataDir)) { return @("Default") }
+    $profiles = Get-ChildItem -Path $UserDataDir -Directory | Where-Object { $_.Name -match "Default|Profile" } | Select-Object -ExpandProperty Name
+    if ($profiles.Count -eq 0) { return @("Default") }
+    return $profiles
+}
+
+function Select-ChromeProfile {
+    $profiles = Get-ChromeProfiles
+    Write-Host "Available Chrome Profiles:"
+    for ($i=0; $i -lt $profiles.Count; $i++) { Write-Host "$($i+1) - $($profiles[$i])" }
+    $choice = Read-Host "Enter choice (number)"
+    if ($choice -match '^\d+$' -and $choice -ge 1 -and $choice -le $profiles.Count) { return $profiles[$choice-1] }
+    else { Write-Host "Invalid choice. Using Default profile."; return "Default" }
+}
+
+function Get-Urls {
+    if (!(Test-Path $UrlFile)) { Write-Host "URL file not found: $UrlFile"; exit }
+    return Get-Content $UrlFile | Where-Object { $_ -and -not $_.StartsWith("#") }
+}
+
+Write-Host "Morning Chrome Workspace Launcher"
+$ChromePath = Get-ChromePath
+if (!$ChromePath) { Write-Host "Google Chrome not found."; exit }
+$Profile = Select-ChromeProfile
+$Urls = Get-Urls
+if ($Urls.Count -eq 0) { Write-Host "No URLs found."; exit }
+$ChromeRunning = Get-Process chrome -ErrorAction SilentlyContinue
+if ($ChromeRunning) {
+    Write-Host "Chrome already running."
+    if ($ChromeRunningOption -eq "B") { Write-Host "Option B: No new tabs."; exit }
+    if ($ChromeRunningOption -eq "C") { Start-Process $ChromePath "--new-window --profile-directory=$Profile" }
+    $Delay = $DelayIfChromeRunning
+} else {
+    Start-Process $ChromePath "--profile-directory=$Profile"
+    Start-Sleep 2
+    $Delay = $DelayIfChromeClosed
+}
+foreach ($url in $Urls) { Start-Process $ChromePath "--profile-directory=$Profile $url"; if ($Delay -gt 0) { Start-Sleep -Seconds $Delay } }
+Write-Host "All tabs launched."
+```
+
+---
+
+## **Step 3: Allow Scripts to Run**
+
+Run **once** in PowerShell:
+
+```powershell
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+Press `Y` to confirm.
+
+---
+
+## **Step 4: Run the Script**
+
+```powershell
+cd C:\Automation\MorningWorkspace
+.\MorningChromeLauncher.ps1
+```
+
+1. Choose the Chrome profile from the list.
+2. Chrome will open and load all your URLs automatically.
+
+---
+
+## **Step 5: Desktop Shortcut**
+
+1. Right-click desktop → **New → Shortcut**
+2. Location:
+
+```
+powershell.exe -ExecutionPolicy Bypass -File "C:\Automation\MorningWorkspace\MorningChromeLauncher.ps1"
+```
+
+3. Name it `Morning Workspace`.
+4. Double-click it every morning — all tabs open automatically.
+
+---
+
+## **Step 6: Update URLs**
+
+Edit `urls.txt` to add or remove URLs. Next time you run the script, the changes are applied.
+
+---
+
+This is short, easy to follow, and fully functional for anyone to get started with **PowerShell-based morning workspace automation**.
+
+---
+
+If you want, I can also **make it an even shorter “1-page GitHub README style”** with all commands and script blocks inlined, perfect for copy-paste without extra explanation.
+
+Do you want me to do that?
